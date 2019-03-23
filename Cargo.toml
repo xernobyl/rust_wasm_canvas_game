@@ -22,6 +22,7 @@ features = [
 	'FocusEvent',
 	'HtmlCanvasElement',
 	'HtmlElement',
+	'KeyboardEvent',
 	'Node',
 	'Performance',
 	'UiEvent',

@@ -36,8 +36,11 @@ pub struct Canvas {
 
 impl Canvas {
 	fn frame_callback(&mut self, frame_time: f64) {
-		log(&format!("{}", frame_time));
+		// log(&format!("{}", frame_time));
 		// DRAW HERE
+
+		self.context.rect(20.0, 20.0, 150.0, 100.0);
+		self.context.stroke();
 
 		self.frame += 1;
 	}
@@ -81,21 +84,23 @@ impl Canvas {
 		let canvas = Rc::new(canvas);
 		let context = Rc::new(context);
 
+		// keydown event
 		{
-			let canvas = canvas.clone();
-			let closure = Closure::wrap(Box::new(move || {
-				let width = canvas.client_width() as u32;
-				let height = canvas.client_height() as u32;
+			let closure = Closure::wrap(Box::new(move |keyboard_event: web_sys::KeyboardEvent| {
+				// game.key_pressed(keyboard_event.code(), true);
+			}) as Box<dyn FnMut(_)>);
 
-				if width != 0 && height != 0 {
-					log(format!("Resizing: {} * {}", width, height).as_ref());
+			window().unwrap().set_onkeydown(Option::Some(closure.as_ref().unchecked_ref()));
+			closure.forget();
+    }
 
-					canvas.set_width(width);
-					canvas.set_height(height);
-				}
-			}) as Box<dyn FnMut()>);
+		// keyup event
+		{
+			let closure = Closure::wrap(Box::new(move |keyboard_event: web_sys::KeyboardEvent| {
+				// game.key_pressed(keyboard_event.code(), false);
+			}) as Box<dyn FnMut(_)>);
 
-			window().unwrap().set_onresize(Option::Some(closure.as_ref().unchecked_ref()));
+			window().unwrap().set_onkeyup(Option::Some(closure.as_ref().unchecked_ref()));
 			closure.forget();
     }
 

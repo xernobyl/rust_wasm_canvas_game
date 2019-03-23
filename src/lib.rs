@@ -1,6 +1,8 @@
 use wasm_bindgen::prelude::*;
 
 pub mod canvas;
+pub mod game;
+pub mod player;
 
 use self::canvas::Canvas;
 
