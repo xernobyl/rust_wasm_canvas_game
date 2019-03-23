@@ -1,2 +1,2 @@
-# wasm2
-The WASM thing
+# WASM RUST CANVAS THING
+The WASM rust canvas thing

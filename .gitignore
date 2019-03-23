@@ -12,5 +12,5 @@ Cargo.lock
 /node_modules
 package-lock.json
 *.wasm
-wasm2.js
+biubiu.js
 *.ts

@@ -1,1 +1,1 @@
-import('./wasm2').catch(console.error)
+import('./biubiu').catch(console.error)
