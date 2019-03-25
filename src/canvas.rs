@@ -18,7 +18,8 @@ use std::rc::Rc;
 use web_sys::*;
 
 use cgmath::*;
-
+extern crate rand;
+use rand::Rng;
 
 #[wasm_bindgen]
 extern "C" {
@@ -31,6 +32,14 @@ pub struct Canvas {
 	canvas: Rc<HtmlCanvasElement>,
 	context: Rc<CanvasRenderingContext2d>,
 	frame: u64,
+	random_seed: u32,
+}
+
+
+// from http://www.iquilezles.org/www/articles/sfrand/sfrand.htm
+fn random(seed: &mut u32) -> f32 {
+	*seed *= 16807;
+	unsafe { std::mem::transmute::<u32, f32>(*seed >> 9 | 0x3f800000) - 1.0 }
 }
 
 
@@ -39,7 +48,14 @@ impl Canvas {
 		// log(&format!("{}", frame_time));
 		// DRAW HERE
 
-		self.context.rect(20.0, 20.0, 150.0, 100.0);
+		let mut rng = rand::thread_rng();
+		let x: f64 = rng.gen();
+		let y: f64 = rng.gen();
+
+		let w = 100.0;
+		let h = 100.0;
+
+		self.context.rect(x, y, w, h);
 		self.context.stroke();
 
 		self.frame += 1;
@@ -108,6 +124,7 @@ impl Canvas {
 			canvas,
 			context,
 			frame: 0,
+			random_seed: 1337,
 		})
 	}
 

@@ -19,8 +19,8 @@ pub fn web_main() -> Result<(), JsValue> {
 			log(&msg);
 			Err(JsValue::from(msg))
 		},
-		Ok(gl) => {
-			gl.start_loop();
+		Ok(game) => {
+			game.start_loop();
 			Ok(())
 		}
 	}
