@@ -1,27 +1,39 @@
 use wasm_bindgen::prelude::*;
 
-pub mod canvas;
+pub mod canvas2d;
 pub mod game;
 pub mod player;
 
-use self::canvas::Canvas;
+use self::canvas2d::Canvas2D;
 
-#[wasm_bindgen]
-extern "C" {
-	#[wasm_bindgen(js_namespace = console, js_name = log)]
-	fn log(s: &str);
+struct Game {
+	canvas: Canvas2D,
 }
+
+impl Game {
+	fn main() -> Result<(), JsValue> {
+		let canvas = Canvas2D::new()?;
+
+		canvas.on_key(|key_code, down| {
+			canvas.log("FUCKING KEY PRESSED!");
+		});
+
+		canvas.on_frame(|frame_time| {
+			canvas.log("FUCKING NEW FRAME!");
+		});
+
+		canvas.on_resize(|new_width, new_height| {
+			canvas.log("FUCKING RESIZED!");
+		});
+
+		canvas.start_loop();
+
+		Ok(())
+	}
+}
+
 
 #[wasm_bindgen(start)]
 pub fn web_main() -> Result<(), JsValue> {
-	match Canvas::new() {
-		Err(msg) => {
-			log(&msg);
-			Err(JsValue::from(msg))
-		},
-		Ok(game) => {
-			game.start_loop();
-			Ok(())
-		}
-	}
+	Game::main()
 }

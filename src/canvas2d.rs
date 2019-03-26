@@ -1,12 +1,3 @@
-/*
-Useful example for callbacks and stuff here:
-https://rustwasm.github.io/wasm-bindgen/examples/paint.html?highlight=create_element#srclibrs
-https://rustwasm.github.io/wasm-bindgen/api/js_sys/
-https://rustwasm.github.io/wasm-bindgen/api/web_sys/
-*/
-
-#![allow(dead_code)]
-
 //use js_sys::WebAssembly;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -17,9 +8,6 @@ use std::rc::Rc;
 
 use web_sys::*;
 
-use cgmath::*;
-extern crate rand;
-use rand::Rng;
 
 #[wasm_bindgen]
 extern "C" {
@@ -28,40 +16,16 @@ extern "C" {
 }
 
 
-pub struct Canvas {
+pub struct Canvas2D {
 	canvas: Rc<HtmlCanvasElement>,
 	context: Rc<CanvasRenderingContext2d>,
-	frame: u64,
-	random_seed: u32,
+	key_callback: Fn,
+	frame_callback: Fn,
+	resize_callback: Fn,
 }
 
 
-// from http://www.iquilezles.org/www/articles/sfrand/sfrand.htm
-fn random(seed: &mut u32) -> f32 {
-	*seed *= 16807;
-	unsafe { std::mem::transmute::<u32, f32>(*seed >> 9 | 0x3f800000) - 1.0 }
-}
-
-
-impl Canvas {
-	fn frame_callback(&mut self, frame_time: f64) {
-		// log(&format!("{}", frame_time));
-		// DRAW HERE
-
-		let mut rng = rand::thread_rng();
-		let x: f64 = rng.gen();
-		let y: f64 = rng.gen();
-
-		let w = 100.0;
-		let h = 100.0;
-
-		self.context.rect(x, y, w, h);
-		self.context.stroke();
-
-		self.frame += 1;
-	}
-
-
+impl Canvas2D {
 	pub fn new() -> Result<Self, String> where Self: Sized {
 		fn create_canvas_element() -> Result<(HtmlCanvasElement, CanvasRenderingContext2d), JsValue> {
 			let document = window().ok_or("Can't get window")?
@@ -120,11 +84,12 @@ impl Canvas {
 			closure.forget();
     }
 
-		Result::Ok(Canvas {
+		Result::Ok(Self {
 			canvas,
 			context,
-			frame: 0,
-			random_seed: 1337,
+			key_callback: |_, _| {},
+			frame_callback: |_| {},
+			resize_callback: |_, _| {},
 		})
 	}
 
@@ -143,7 +108,7 @@ impl Canvas {
 
 		let closure = Some(Closure::wrap(Box::new(move |timestamp| {
 			if let Some(the_self) = Rc::get_mut(&mut rc) {
-				the_self.frame_callback(timestamp);
+				self.frame_callback(timestamp);
 			};
 			request_animation_frame(f.borrow().as_ref().unwrap());
 		}) as Box<dyn FnMut(_)>));
@@ -151,5 +116,21 @@ impl Canvas {
 		*g.borrow_mut() = closure;
 		request_animation_frame(g.borrow().as_ref().unwrap());
 		// closure.forget();
+	}
+
+	pub fn on_key(&mut self, callback: Fn) {
+		self.key_callback = callback;
+	}
+
+	pub fn on_frame(&mut self, callback: Fn) {
+		self.frame_callback = callback;
+	}
+
+	pub fn on_resize(&mut self, callback: Fn) {
+		self.resize_callback = callback;
+	}
+
+	pub fn log(&self, text: &str) {
+		log(text);
 	}
 }
